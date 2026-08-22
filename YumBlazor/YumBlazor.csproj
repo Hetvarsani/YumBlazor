@@ -9,11 +9,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="..\..\..\..\Downloads\blazor+snippets\blazor snippets\NEW Course .NET 9\Images\default.png" Link="wwwroot\images\default.png" />
+    <Content Include="..\..\..\..\Downloads\blazor+snippets\blazor snippets\NEW Course .NET 9\Images\lawn_leaf.jpg" Link="wwwroot\images\lawn_leaf.jpg" />
+    <Content Include="..\..\..\..\Downloads\blazor+snippets\blazor snippets\NEW Course .NET 9\Images\loading.gif" Link="wwwroot\images\loading.gif" />
+    <Content Include="..\..\..\..\Downloads\blazor+snippets\blazor snippets\NEW Course .NET 9\Images\Logo.png" Link="wwwroot\images\Logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10" PrivateAssets="all" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\Extensions\" />
+    <Folder Include="Services\" />
+    <Folder Include="ViewModels\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>
