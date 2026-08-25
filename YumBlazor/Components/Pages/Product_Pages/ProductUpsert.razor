@@ -1,7 +1,9 @@
 ﻿@page "/product/create"
 @page "/product/update/{id:int}"
 @inject IProductRepository _productRepository
+@inject ICategoryRepository _categoryRepository
 @inject NavigationManager _navigationManager
+@inject IWebHostEnvironment _webHostEnvironment
 @inject IJSRuntime _JS
 @if (IsProcessing)
 {
@@ -15,7 +17,7 @@ else
         <div class="card-header bg-black bg-gradient m-lg-0 py-3">
             <div class="row">
                 <div class="col-12 text-center">
-                    <h1 class="text-white py-2">@(Id>0?"create" : "Upadate")Product</h1>
+                    <h1 class="text-white py-2">@(Id==0?"create" : "Upadate")Product</h1>
                 </div>
             </div>
         </div>
@@ -28,11 +30,56 @@ else
                         <InputText @bind-Value="Product.Name" class="form-control" id="Name" placeholder="Name"/>
                         <lable for="Name">Name</lable>
                         <ValidationMessage For="@(()=> Product.Name)"/>
+                    </div
+
+
+                    <div class="form-floating py-3 col-12">
+                        <InputText @bind-Value="Product.Description" class="form-control" id="Description" placeholder="Description" />
+                        <lable for="Description">Description</lable>
+                        <ValidationMessage For="@(() => Product.Description)" />
                     </div>
+
+                    <div class="form-floating py-3 col-12">
+                        <InputNumber @bind-Value="Product.Price" class="form-control" id="Price" placeholder="Price" />
+                        <lable for="Price">Price</lable>
+                        <ValidationMessage For="@(() => Product.Price)" />
+                    </div>
+
+                     <div class="form-floating py-3 col-12">
+                        <InputSelect @bind-Value="Product.CategoryId" class="form-select" id="ategory">
+                            <option value="0" disabled selected>--Select Category--</option>
+                            @foreach(var category in _categories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        </InputSelect>
+
+                        <lable for="category">Category</lable>
+                        <ValidationMessage For="@(() => Product.CategoryId)" />
+                    </div>
+                    <div class="form-floating py-3 col-12">
+                        <InputFile OnChange="LoadFiles" class="form-control" id="customFile" 
+                        accept="image/x-png,image/jpeg"></InputFile>
+                        <lable for="customFile">Upload Image</lable>
+
+                        @if(Product.ImageUrl!=null)
+                        {
+                            <div class="row pt-2">
+                                <div class="col-3">
+                                    <img src="@Product.ImageUrl" alt="..." class="img-thumbnail"/>
+                                </div>
+                                <div class="col-md-9">
+                                    <i class="bi bi-trash btn btn-outline-danger" @onclick="DeleteImage">Remove</i>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+
                     <div class="row mt-3">
                         <div class="col-6 col-md-3">
                             <button type="submit" class="btn btn-primary form-control"disabled="@IsProcessing">
-                                <i class="bi bi-floppy2-fill"></i> Update
+                                <i class="bi bi-floppy2-fill"></i> @(Id == 0 ? "create" : "Upadate")
                             </button>
                         </div>
                         <div class="col-6 col-md-3">
@@ -55,26 +102,33 @@ else
     [SupplyParameterFromForm]
     private Product Product { get; set; } = new Product();
 
+    private IEnumerable<Category> _categories = new List<Category>();
+
+    private string? _directoryPath { get; set; }
     private bool IsProcessing { get; set; } = true;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender)
-        {
-            await LoadProduct();
-            IsProcessing = false;
-            StateHasChanged();
-        }
-        //return base.OnAfterRenderAsync(firstRender);
-    }
+        // 1. Call the base method to preserve any underlying Blazor functionality
+        await base.OnInitializedAsync();
 
-    private async Task LoadProduct()
-    {
-        if(Id>0)
+        // 2. Set the directory path for your images
+        _directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "product");
+
+        // 3. Tell the UI that loading has started (triggers loading spinners if you have them)
+        IsProcessing = true;
+
+        // 4. Load your dropdown categories
+        _categories = await _categoryRepository.GetAllAsync();
+
+        // 5. Load the specific product if you are editing an existing one
+        if (Id > 0)
         {
             Product = await _productRepository.GetAsync(Id);
         }
 
+        // 6. Tell the UI that loading is finished so it can display the form
+        IsProcessing = false;
     }
 
     private async Task UpsertProduct()
@@ -82,7 +136,7 @@ else
         IsProcessing = true;
         if (Product.Id == 0)
         {
-            //creat
+            // FIXED: Your Create logic was accidentally commented out!
             await _productRepository.CreateAsync(Product);
             await _JS.ToastrSuccess("Product created successfully");
         }
@@ -92,6 +146,43 @@ else
             await _JS.ToastrSuccess("Product Updated successfully");
         }
         IsProcessing = false;
-        _navigationManager.NavigateTo("Product");
+        _navigationManager.NavigateTo("Product"); // Make sure this matches your exact route case
     }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        IsProcessing = true;
+        var file = e.File;
+        FileInfo fileInfo = new(file.Name);
+        var newFileName = $"{Guid.NewGuid()}.{fileInfo.Extension}";
+        if(Directory.Exists(_directoryPath))
+        {
+            Directory.CreateDirectory(_directoryPath);
+        }
+        var path = Path.Combine(_directoryPath, newFileName);
+
+        await using FileStream fileStream = new(path, FileMode.Create);
+        await file.OpenReadStream(file.Size).CopyToAsync(fileStream);
+        Product.ImageUrl = $"/images/product/{newFileName}";
+        IsProcessing = false;
+    }
+
+    void DeleteImage()
+    {
+        if (Product.ImageUrl == null)
+            return;
+
+            var fileToDelete = Product.ImageUrl.Split('/').Reverse().First();
+
+        var filePathToDeleteImage = Path.Combine(_directoryPath,fileToDelete);
+
+        if (!File.Exists(filePathToDeleteImage))
+            return;
+
+            File.Delete(filePathToDeleteImage);
+
+            Product.ImageUrl = null;
+            return;
+    }
+
 }
