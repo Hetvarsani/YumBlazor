@@ -40,6 +40,12 @@ else
                     </div>
 
                     <div class="form-floating py-3 col-12">
+                        <InputText @bind-Value="Product.SpecialTag" class="form-control" id="SpecialTag" placeholder="SpecialTag" />
+                        <lable for="SpecialTag">Special Tag</lable>
+                        <ValidationMessage For="@(() => Product.SpecialTag)" />
+                    </div>
+
+                    <div class="form-floating py-3 col-12">
                         <InputNumber @bind-Value="Product.Price" class="form-control" id="Price" placeholder="Price" />
                         <lable for="Price">Price</lable>
                         <ValidationMessage For="@(() => Product.Price)" />
@@ -58,13 +64,17 @@ else
                         <ValidationMessage For="@(() => Product.CategoryId)" />
                     </div>
                     <div class="form-floating py-3 col-12">
-                        <InputFile OnChange="LoadFiles" class="form-control" id="customFile" 
+                        @if(Product.ImageUrl == null)
+                        {
+                            <InputFile OnChange="LoadFiles" class="form-control" id="customFile" 
                         accept="image/x-png,image/jpeg"></InputFile>
                         <lable for="customFile">Upload Image</lable>
+                        }
+                        
 
                         @if(Product.ImageUrl!=null)
                         {
-                            <div class="row pt-2">
+                            <div class="row">
                                 <div class="col-3">
                                     <img src="@Product.ImageUrl" alt="..." class="img-thumbnail"/>
                                 </div>
@@ -78,7 +88,7 @@ else
 
                     <div class="row mt-3">
                         <div class="col-6 col-md-3">
-                            <button type="submit" class="btn btn-primary form-control"disabled="@IsProcessing">
+                            <button type="submit" class="btn btn-primary form-control pb-3"disabled="@IsProcessing">
                                 <i class="bi bi-floppy2-fill"></i> @(Id == 0 ? "create" : "Upadate")
                             </button>
                         </div>

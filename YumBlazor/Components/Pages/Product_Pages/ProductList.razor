@@ -51,7 +51,7 @@ else
                             <tr>
                                 <td>@obj.Name</td>
                                 <td>@obj.Price.ToString("C", CultureInfo.GetCultureInfo("en-US"))</td>
-                                <td>@obj.SpecialTag</td>
+                                <td><span class="badge text-bg-info">@obj.SpecialTag</span></td>
                                 @* Use null-conditional operator to prevent NullReferenceException *@
                                 <td>@(obj.Category?.Name ?? "No Category")</td>
                                 <td>
