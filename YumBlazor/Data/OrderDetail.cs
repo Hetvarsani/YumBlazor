@@ -1,0 +1,26 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace YumBlazor.Data
+{
+    public class OrderDetail
+    {
+        public int Id { get; set; }
+
+        public int OrderHeaderId { get; set; }
+        public OrderHeader OrderHeader { get; set; }
+
+        public int ProductId { get; set; }
+        public Product Product { get; set; }
+
+        [Required]
+        public int Count { get; set; }
+
+        [Required]
+        public int Price { get; set; }
+
+        [Required]
+        public int ProductName { get; set; }
+
+        public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+    }
+}
