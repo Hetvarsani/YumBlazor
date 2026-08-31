@@ -4,6 +4,8 @@
 @using YumBlazor.Utility
 @inject AuthenticationStateProvider _AuthenticationStateProvider
 @inject IShoppingCartRepository _cartRepository
+@inject IOrderRepository _orderRepository
+@inject NavigationManager _navigationManager
 @attribute [Authorize]
 
 @if (IsProcessing)
@@ -165,16 +167,17 @@ else
 
     private async Task UpdateCartItem(int productId, int updateBy)
     {
-      
-
-
-
         var result = await _cartRepository.UpdateCartAsync(OrderHeader.UserId, productId, updateBy);
         await LoadCart();
     }
 
     private async Task ProcessOrderCreation()
     {
+        IsProcessing = true;
+        await Task.Yield();
+        OrderHeader.OrderDetails = SD.CovertShoppingCartListToOrderDetails(ShoppingCarts.ToList());
 
+        await _orderRepository.CreateAsync(OrderHeader);
+        _navigationManager.NavigateTo($"/order/confirmation/{OrderHeader.Id}");
     }
 }

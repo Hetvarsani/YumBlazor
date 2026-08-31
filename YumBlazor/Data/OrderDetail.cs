@@ -16,10 +16,10 @@ namespace YumBlazor.Data
         public int Count { get; set; }
 
         [Required]
-        public int Price { get; set; }
+        public double Price { get; set; }
 
         [Required]
-        public int ProductName { get; set; }
+        public string ProductName { get; set; }
 
         public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
     }
